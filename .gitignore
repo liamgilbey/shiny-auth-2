@@ -40,3 +40,6 @@ vignettes/*.pdf
 
 # figures
 figures
+
+# traefik files
+data/traefik

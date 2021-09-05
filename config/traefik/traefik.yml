@@ -1,0 +1,38 @@
+version: "3.2"
+
+services:
+  traefik:
+    image: traefik:v2.5
+    env_file: ./config/traefik/traefik.env
+    command: --web --docker --docker.swarmmode --docker.watch --logLevel=DEBUG
+    ports:
+      - 80:80
+      - 443:443
+      - 8080:8080
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./config/traefik/traefik.toml:/etc/traefik/traefik.toml
+      - ./data/traefik/traefik.log:/traefik.log
+      - ./data/traefik/acme.json:/acme.json
+    networks:
+      - traefik-network_net
+    deploy:
+      mode: global
+      labels:
+        - "traefik.docker.network=traefik-network_net"
+        - "traefik.http.routers.api.rule=Host(`traefik.example.com`)"
+        - "traefik.http.routers.api.entrypoints=https"
+        - "traefik.http.routers.api.tls.domains[0].main=example.com"
+        - "traefik.http.routers.api.tls.domains[0].sans=*.example.com"        
+        - "traefik.http.routers.api.tls=true"
+        - "traefik.http.routers.api.tls.certresolver=main"
+        - "traefik.http.routers.api.service=api@internal"
+        - "traefik.http.services.dummy.loadbalancer.server.port=9999"
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:
+        condition: on-failure
+
+networks:
+  traefik-network_net:
+    external: true

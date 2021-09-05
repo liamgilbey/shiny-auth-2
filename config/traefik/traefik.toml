@@ -1,0 +1,42 @@
+[global]
+  checkNewVersion = true
+
+# Enable the Dashboard
+[api]
+  dashboard = true
+
+# Write out Traefik logs. We'll go with DEBUG logs for now, but this will grow quite quickly. 
+# Should change to INFO once we are comfortable with the setup
+[log]
+  level = "DEBUG"
+  filePath = "/traefik.log"
+
+# Define the HTTP entrypoint and redirect to HTTPS
+[entryPoints.http]
+  address = ":80"
+  [entryPoints.http.http.redirections.entryPoint]
+    to = "https"
+    scheme = "https"
+
+# Define the HTTPS entrypoint and certificate resolver
+[entryPoints.https]
+  address = ":443"
+  [entryPoints.https.http.tls]
+    certResolver = "main"
+
+# Define Let's Encrypt certificates
+[certificatesResolvers.main.acme]
+  email = "your-email@example.com"
+  storage = "acme.json"
+  [certificatesResolvers.main.acme.dnsChallenge]
+    provider = "cloudflare"
+    delayBeforeCheck = 0
+    resolvers = ["1.1.1.1:53", "1.0.0.1:53"]   
+
+# Docker Traefik provider
+[providers.docker]
+  endpoint = "unix:///var/run/docker.sock"
+  swarmMode = true
+  watch = true
+
+

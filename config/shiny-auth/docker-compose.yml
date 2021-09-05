@@ -1,0 +1,17 @@
+version: "3"
+services:
+  shiny-auth:
+    image: shiny-auth:latest
+    networks:
+      - traefik-network_net
+      deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=traefik-network_net
+        - "traefik.http.routers.shiny.rule=Host(`shiny.example.com`)"
+        - "traefik.http.routers.shiny.entrypoints=https"
+        - "traefik.http.services.shiny.loadbalancer.server.port=3838"
+
+networks:
+  traefik-network_net:
+    external: true

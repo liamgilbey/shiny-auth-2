@@ -39,7 +39,8 @@ vignettes/*.pdf
 .Renviron
 
 # figures
-figures
+figures/*
+!figures/post_image.png
 
 # traefik files
 data/traefik
